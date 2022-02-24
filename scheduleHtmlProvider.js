@@ -1,36 +1,33 @@
-function scheduleHtmlProvider(iframeContent = "", frameContent = "", dom = document) {
-    //除函数名外都可编辑
-    //以下为示例，您可以完全重写或在此基础上更改
+async function scheduleHtmlProvider(iframeContent = "", frameContent = "", dom = document) {
+    // 以下可编辑
+    const url = "https://tis.sustech.edu.cn/xszykb/queryxszykbzong"
 
-    let request = new XMLHttpRequest();
-    request.open("POST", "/xszykb/queryxszykbzong", false);
-    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+    let xn = "xn="
+    let xq = "xq="
+    let date = new Date()
+    let month = date.getMonth()
+    let year = date.getFullYear() - (month <= 8 ? 1 : 0)
 
-    let xn = "xn=";
-    let xq = "xq=";
-    let date = new Date();
-    let year = date.getFullYear();
-    let month = date.getMonth();
-    xn = xn + year.toString() + "-" + (year + 1).toString();
+    xn = xn + year + "-" + (year + 1)
     if (0 <= month && month <= 5)
-        xq = xq + "2";
+        xq = xq + "2"
     else if (6 <= month && month <= 7)
-        xq = xq + "3";
+        xq = xq + "3"
     else
-        xq = xq + "1";
-
-    let result = "";
-    request.onreadystatechange = function() {
-        if (this.readyState == 4) {
-            result = request.responseText;
-        }
-    }
+        xq = xq + "1"
 
     try {
-        request.send(xn + "&" + xq);
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: xn + "&" + xq
+        }).then(res => res.text())
+        return response
     } catch (error) {
-        console.error(error);
+        console.error(error)
+        await AIScheduleAlert(error.message)
+        return "do not continue"
     }
-
-    return result;
 }
